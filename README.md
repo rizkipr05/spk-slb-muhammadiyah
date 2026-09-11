@@ -1,58 +1,101 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SPK Kebutuhan Layanan Pendidikan SLB ABCD MUHAMMADIYAH PALU
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Pendukung Keputusan (SPK) ini dikembangkan menggunakan kerangka kerja (framework) **Laravel** untuk membantu dalam pengelolaan layanan pendidikan inklusi dan analisis data siswa berkebutuhan khusus.
 
-## About Laravel
+## 📋 Persyaratan Sistem (*Prerequisites*)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Sebelum menginstal dan menjalankan aplikasi ini, pastikan sistem Anda memiliki lingkungan berikut:
+- **PHP** >= 8.1
+- **Composer** (untuk manajemen dependensi PHP)
+- **Node.js** & **NPM** (untuk *asset bundling* dengan Vite)
+- **MySQL / MariaDB** (bisa menggunakan XAMPP, Laragon, dsb.)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Panduan Instalasi (*Installation Guide*)
 
-## Learning Laravel
+Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi secara lokal:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 1. Ekstrak / Clone Direktori
+Pastikan Anda mengekstrak atau *clone* direktori (folder) proyek ini ke dalam direktori lokal server Anda (misalnya `htdocs` untuk XAMPP atau `www` untuk Laragon).
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+### 2. Instalasi Dependensi PHP
+Buka terminal / *command prompt*, arahkan ke dalam *folder* proyek (misal: `cd C:\xampp\htdocs\spk-disabilitas`), lalu jalankan:
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 3. Instalasi dan Build Dependensi Frontend (Node.js)
+Jalankan perintah berikut untuk mengunduh modul NPM dan memproses *assets* (CSS/JS):
+```bash
+npm install
+npm run build
+```
+*(Catatan: Jika Anda sedang dalam tahap *development* aktif, Anda bisa menggunakan `npm run dev`)*.
 
-## Contributing
+### 4. Konfigurasi Environment (Database)
+Gandakan (copy) file `.env.example` menjadi `.env`.
+```bash
+cp .env.example .env
+```
+Lalu buka file `.env` di *text editor* Anda, dan sesuaikan pengaturan *database* Anda:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=spk_disabilitas  # (Sesuaikan dengan nama database yang Anda buat di phpMyAdmin)
+DB_USERNAME=root             # (Standarnya root)
+DB_PASSWORD=                 # (Kosongkan jika Anda memakai setup standar XAMPP)
+```
+**Penting:** Pastikan Anda telah membuat *database* kosong dengan nama `spk_disabilitas` melalui *phpMyAdmin* atau *Database Client* lainnya.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 5. Buat Application Key
+Jalankan perintah ini untuk menciptakan *key* keamanan aplikasi:
+```bash
+php artisan key:generate
+```
 
-## Code of Conduct
+### 6. Migrasi dan Seeding Database
+Lakukan migrasi tabel beserta *dummy data* awal (*Kriteria*, *User*, dll) dengan perintah:
+```bash
+php artisan migrate --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 7. Hubungkan Storage Lokal (Opsional namun disarankan)
+Agar fitur *upload* gambar profil dapat berjalan dan terakses sempurna, jalankan:
+```bash
+php artisan storage:link
+```
 
-## Security Vulnerabilities
+### 8. Jalankan Server Development Laravel
+Terakhir, aplikasi siap dijalankan:
+```bash
+php artisan serve
+```
+Buka browser dan akses aplikasi Anda di: **[http://localhost:8000](http://localhost:8000)** atau sesuai konfigurasi virtual host Anda.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 🔐 Kredensial Login Default
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Sistem ini didukung dengan *Role-Based Access Control* (RBAC) (Hak Akses Berbasis Peran). Setelah Anda menjalankan *seeder* (`--seed`), Anda bisa login menggunakan akun berikut:
+
+**1. Administrator**
+- **Username:** `admin`
+- **Password:** `password`
+
+**2. Guru / Penilai**
+- **Username:** `guru`
+- **Password:** `password`
+
+**3. Kepala Sekolah (Monitoring)**
+- **Username:** `kepsek`
+- **Password:** `password`
+
+---
+
+## ✨ Fitur Utama
+- **CRUD Terintegrasi:** Manajemen data Kriteria, Subkriteria, Alternatif, dan Siswa secara dinamis.
+- **Rekomendasi AHP:** Implementasi *Analytical Hierarchy Process* secara terprogram untuk penentuan prioritas siswa berdasarkan bobot penilaian.
+- **Manajemen Biodata:** Pengguna *(termasuk pengguna dengan Role)* bisa memperbarui profil serta unggah foto profil mereka.
+- **Dashboard Analitik:** Visualisasi data berbasis *Chart.js* untuk kemudahan *monitoring*.
