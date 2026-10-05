@@ -59,9 +59,7 @@
             <!-- Sidebar -->
             <div class="col-md-2 sidebar d-none d-md-block">
                 <div class="brand">
-                    <div class="d-flex align-items-center justify-content-center bg-white shadow-sm" style="width: 48px; height: 48px; border-radius: 14px; padding: 6px; border: 1px solid rgba(0,0,0,0.03);">
-                        <img src="{{ asset('assets/logo.png') }}" alt="Logo SPK Edu" class="img-fluid object-fit-contain" style="border-radius: 8px;">
-                    </div>
+                    <img src="{{ asset('assets/logo-v2.png') }}" alt="Logo SPK Edu" style="height: 44px; width: auto; object-fit: contain;">
                     <div class="d-flex flex-column" style="line-height: 1.1;">
                         <span style="font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); white-space: nowrap;">SPK SLB ABCD</span>
                         <span style="font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; color: var(--primary); margin-top: 1px; white-space: nowrap;">Muhammadiyah Palu</span>

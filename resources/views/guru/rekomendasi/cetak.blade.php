@@ -47,7 +47,7 @@
         <div class="kop-surat">
             <div class="kop-surat-inner">
                 <div class="logo-wrapper">
-                    <img src="{{ asset('assets/logo.png') }}" class="logo" alt="Logo">
+                    <img src="{{ asset('assets/logo-v2.png') }}" class="logo" alt="Logo">
                 </div>
                 <div class="kop-text">
                     <h2>Sistem Pendukung Keputusan</h2>

@@ -63,29 +63,19 @@
             text-align: center; 
         }
         
-        .login-header .logo-container {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.25rem;
-            background: white;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 20px rgba(67, 56, 202, 0.15);
-            transform: rotate(-3deg);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .login-header .logo-container:hover {
-            transform: rotate(0deg) scale(1.05);
-            box-shadow: 0 12px 25px rgba(67, 56, 202, 0.2);
-        }
-
         .login-header img {
-            width: 50px;
-            height: 50px;
+            height: 90px;
+            width: auto;
+            max-width: 100%;
             object-fit: contain;
+            margin: 0 auto 1.25rem;
+            display: block;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.1));
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .login-header img:hover {
+            transform: scale(1.05);
         }
 
         .login-header h3 { 
@@ -163,7 +153,7 @@
         <div class="login-card">
             <div class="login-header">
                 <div class="logo-container">
-                    <img src="{{ asset('assets/logo.png') }}" alt="Logo SPK Edu">
+                    <img src="{{ asset('assets/logo-v2.png') }}" alt="Logo SPK Edu">
                 </div>
                 <h3>SPK Kebutuhan Layanan Pendidikan</h3>
                 <p class="text-muted fw-medium mb-0" style="font-size: 0.9rem;">SLB ABCD MUHAMMADIYAH PALU</p>

@@ -2,26 +2,25 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\Siswa;
 use App\Models\Kriteria;
-use App\Models\Subkriteria;
 use App\Models\KriteriaComparison;
-use App\Models\Penilaian;
 use App\Models\Pengumuman;
+use App\Models\Penilaian;
+use App\Models\Siswa;
+use App\Models\Subkriteria;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
 
 class DummyDataSeeder extends Seeder
 {
     public function run()
     {
         // 1. Users
-        foreach(['admin', 'guru', 'kepsek'] as $role) {
+        foreach (['admin', 'guru', 'kepsek'] as $role) {
             User::firstOrCreate(
                 ['username' => $role],
-                ['name' => ucfirst($role) . ' SPK', 'email' => $role . '@example.com', 'password' => Hash::make('password'), 'role' => $role]
+                ['name' => ucfirst($role).' SPK', 'email' => $role.'@example.com', 'password' => Hash::make('password'), 'role' => $role]
             );
         }
         $kepsek = User::where('role', 'kepsek')->first();
@@ -32,7 +31,7 @@ class DummyDataSeeder extends Seeder
             ['kode' => 'C2', 'nama' => 'Kemampuan akademik'],
             ['kode' => 'C3', 'nama' => 'Kemampuan komunikasi'],
             ['kode' => 'C4', 'nama' => 'Kemandirian siswa'],
-            ['kode' => 'C5', 'nama' => 'Kemampuan sosial']
+            ['kode' => 'C5', 'nama' => 'Kemampuan sosial'],
         ];
         foreach ($kriteriasData as $k) {
             Kriteria::firstOrCreate(['kode' => $k['kode']], $k);
@@ -48,7 +47,7 @@ class DummyDataSeeder extends Seeder
                 ['nama' => 'Cukup', 'nilai' => 3],
                 ['nama' => 'Baik', 'nilai' => 4],
                 ['nama' => 'Sangat Baik', 'nilai' => 5],
-            ]
+            ],
         ];
         foreach ($kriterias as $k) {
             if (isset($subs[$k->kode])) {
@@ -58,17 +57,24 @@ class DummyDataSeeder extends Seeder
             }
         }
 
-        // 4. Kriteria Comparisons (Pairwise Matrix Generation)
-        $n = count($kriterias);
-        for ($i=0; $i<$n; $i++) {
-            for ($j=$i+1; $j<$n; $j++) {
-                $val = rand(2, 5); // random importance
-                if ($i == 0) $val = 3;
-                if ($i == 1) $val = 2;
-                KriteriaComparison::updateOrCreate(
-                    ['kriteria1_id' => $kriterias[$i]->id, 'kriteria2_id' => $kriterias[$j]->id],
-                    ['nilai' => $val]
-                );
+        // 4. Kriteria Comparisons (Pairwise Matrix dari Hasil Kuesioner)
+        // C1: JKK, C2: KA, C3: KK, C4: KS, C5: KSO
+        $comparisonValues = [
+            'C1' => ['C2' => 1.8378, 'C3' => 2.4166, 'C4' => 4.3734, 'C5' => 5.5106],
+            'C2' => ['C3' => 1.3819, 'C4' => 2.4166, 'C5' => 3.5652],
+            'C3' => ['C4' => 1.5874, 'C5' => 2.4166],
+            'C4' => ['C5' => 1.4471],
+        ];
+
+        $kriteriaByKode = $kriterias->keyBy('kode');
+        foreach ($comparisonValues as $kode1 => $targets) {
+            foreach ($targets as $kode2 => $val) {
+                if (isset($kriteriaByKode[$kode1]) && isset($kriteriaByKode[$kode2])) {
+                    KriteriaComparison::updateOrCreate(
+                        ['kriteria1_id' => $kriteriaByKode[$kode1]->id, 'kriteria2_id' => $kriteriaByKode[$kode2]->id],
+                        ['nilai' => $val]
+                    );
+                }
             }
         }
 
@@ -102,13 +108,13 @@ class DummyDataSeeder extends Seeder
                 'judul' => 'Instruksi Pengisian AHP Semester Ganjil',
                 'isi' => 'Harap kepada seluruh guru Wali Kelas agar segera menuntaskan borang penilaian matriks kriteria paling lambat minggu depan.',
                 'status_aktif' => true,
-                'created_by' => $kepsek->id
+                'created_by' => $kepsek->id,
             ]);
             Pengumuman::create([
                 'judul' => 'Sistem Rekomendasi Terintegrasi Baru',
                 'isi' => 'Dashboard grafik statistik telah aktif dan siap digunakan secara penuh, pastikan input data valid.',
                 'status_aktif' => true,
-                'created_by' => $kepsek->id
+                'created_by' => $kepsek->id,
             ]);
         }
     }
