@@ -89,6 +89,9 @@
                             <a class="nav-link {{ request()->is('guru/dashboard') ? 'active' : '' }}" href="{{ url('/guru/dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->is('guru/siswa*') ? 'active' : '' }}" href="{{ route('guru.siswa.index') }}"><i class="bi bi-people"></i> Data Siswa</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->is('guru/penilaian*') ? 'active' : '' }}" href="{{ route('guru.penilaian.index') }}"><i class="bi bi-clipboard-data"></i> Penilaian Siswa</a>
                         </li>
                         <li class="nav-item">

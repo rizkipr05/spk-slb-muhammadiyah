@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
 use App\Http\Controllers\Kepsek\DashboardController as KepsekDashboard;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -14,32 +14,33 @@ Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-use App\Http\Controllers\Admin\SiswaController;
-use App\Http\Controllers\Admin\KriteriaController;
 use App\Http\Controllers\Admin\AlternatifController;
-use App\Http\Controllers\Admin\UserController;
-
+use App\Http\Controllers\Admin\KriteriaController;
+use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\SubkriteriaController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
     Route::resource('siswa', SiswaController::class);
     Route::resource('kriteria', KriteriaController::class)->parameters([
-        'kriteria' => 'kriteria'
+        'kriteria' => 'kriteria',
     ]);
     Route::resource('kriteria.subkriteria', SubkriteriaController::class)->parameters([
         'kriteria' => 'kriteria',
-        'subkriteria' => 'subkriterium'
+        'subkriteria' => 'subkriterium',
     ]);
     Route::resource('alternatif', AlternatifController::class);
     Route::resource('pengguna', UserController::class);
 });
 
-use App\Http\Controllers\Guru\PenilaianController;
 use App\Http\Controllers\Guru\AhpController;
+use App\Http\Controllers\Guru\PenilaianController;
+use App\Http\Controllers\Guru\SiswaController as GuruSiswaController;
 
 Route::middleware(['auth', 'role:guru'])->prefix('guru')->group(function () {
     Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('guru.dashboard');
+    Route::resource('siswa', GuruSiswaController::class)->except(['show'])->names('guru.siswa');
     Route::get('/penilaian', [PenilaianController::class, 'index'])->name('guru.penilaian.index');
     Route::get('/penilaian/{siswa}/edit', [PenilaianController::class, 'edit'])->name('guru.penilaian.edit');
     Route::put('/penilaian/{siswa}', [PenilaianController::class, 'update'])->name('guru.penilaian.update');

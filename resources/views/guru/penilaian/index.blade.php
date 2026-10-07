@@ -5,10 +5,20 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header">
-        Daftar Siswa untuk Dinilai
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Daftar Siswa untuk Dinilai</span>
+        <a href="{{ route('guru.siswa.create') }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-circle"></i> Tambah Siswa
+        </a>
     </div>
     <div class="card-body">
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+                <i class="bi bi-check-circle me-1"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="alert alert-info">
             Pilih siswa yang akan dilakukan proses penilaian preferensi berdasarkan Kriteria.
         </div>
@@ -47,7 +57,12 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Belum ada data siswa terdaftar.</td>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                Belum ada data siswa terdaftar. 
+                                <a href="{{ route('guru.siswa.create') }}" class="text-primary text-decoration-none fw-semibold">
+                                    Tambah siswa sekarang
+                                </a>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
