@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\UserController;
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
     Route::resource('siswa', SiswaController::class);
+    Route::post('/kriteria/reset-default', [KriteriaController::class, 'resetDefault'])->name('kriteria.reset-default');
     Route::resource('kriteria', KriteriaController::class)->parameters([
         'kriteria' => 'kriteria',
     ]);

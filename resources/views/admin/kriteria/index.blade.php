@@ -7,15 +7,41 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>Tabel Data Kriteria</span>
-        <a href="{{ route('kriteria.create') }}" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus-circle"></i> Tambah Kriteria
-        </a>
+        <div class="d-flex gap-2">
+            <form action="{{ route('kriteria.reset-default') }}" method="POST" class="d-inline" onsubmit="return confirm('Muat ulang 5 data kriteria standar kuesioner (K1 s/d K5) beserta matriks perbandingannya?')">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-primary shadow-sm">
+                    <i class="bi bi-arrow-repeat"></i> Muat Kriteria Kuesioner (K1-K5)
+                </button>
+            </form>
+            <a href="{{ route('kriteria.create') }}" class="btn btn-sm btn-primary shadow-sm">
+                <i class="bi bi-plus-circle"></i> Tambah Kriteria
+            </a>
+        </div>
     </div>
     <div class="card-body">
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
                 <i class="bi bi-check-circle me-1"></i> {{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if($kriterias->count() < 5)
+            <div class="alert alert-warning d-flex align-items-center justify-content-between rounded-3 mb-3" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+                    <div>
+                        <strong>Data Kriteria Belum Lengkap:</strong> Saat ini baru terdaftar {{ $kriterias->count() }} kriteria. 
+                        Untuk perhitungan AHP sesuai hasil kuesioner pakar (5 kriteria: K1 s/d K5), silakan klik <strong>Muat Kriteria Kuesioner (K1-K5)</strong>.
+                    </div>
+                </div>
+                <form action="{{ route('kriteria.reset-default') }}" method="POST" class="ms-3 d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-warning text-dark fw-bold">
+                        <i class="bi bi-arrow-repeat"></i> Muat Sekarang
+                    </button>
+                </form>
             </div>
         @endif
 

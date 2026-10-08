@@ -56,10 +56,15 @@ php artisan key:generate
 ```
 
 ### 6. Migrasi dan Seeding Database
-Lakukan migrasi tabel beserta *dummy data* awal (*Kriteria*, *User*, dll) dengan perintah:
+Lakukan migrasi tabel beserta seluruh data awal (*User, 5 Kriteria K1-K5, Subkriteria, Matriks Perbandingan AHP Kuesioner, dan Data Siswa*) dengan perintah:
 ```bash
 php artisan migrate --seed
 ```
+*Catatan: Jika database sudah pernah dimigrasi dan Anda ingin memuat/memulihkan data 5 kriteria beserta nilai bobot kuesioner, Anda cukup menjalankan:*
+```bash
+php artisan db:seed
+```
+*(Atau reset total bersih dengan `php artisan migrate:fresh --seed`)*.
 
 ### 7. Hubungkan Storage Lokal (Opsional namun disarankan)
 Agar fitur *upload* gambar profil dapat berjalan dan terakses sempurna, jalankan:

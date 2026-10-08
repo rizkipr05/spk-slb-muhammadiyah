@@ -13,18 +13,36 @@ class AhpController extends Controller
 {
     private function calculateAHP()
     {
-        $kriterias = Kriteria::orderBy('id', 'asc')->get();
+        $kriterias = Kriteria::orderBy('kode', 'asc')->get();
         if ($kriterias->isEmpty()) {
             return null;
         }
 
-        // Nilai perbandingan berpasangan default dari Hasil Kuesioner (C1: JKK, C2: KA, C3: KK, C4: KS, C5: KSO)
+        // Nilai perbandingan berpasangan default dari Hasil Kuesioner (K1/C1: JKK, K2/C2: KA, K3/C3: KK, K4/C4: KS, K5/C5: KSO)
         $defaultComparisons = [
             'C1' => ['C2' => 1.8378, 'C3' => 2.4166, 'C4' => 4.3734, 'C5' => 5.5106],
             'C2' => ['C3' => 1.3819, 'C4' => 2.4166, 'C5' => 3.5652],
             'C3' => ['C4' => 1.5874, 'C5' => 2.4166],
             'C4' => ['C5' => 1.4471],
+            'K1' => ['K2' => 1.8378, 'K3' => 2.4166, 'K4' => 4.3734, 'K5' => 5.5106],
+            'K2' => ['K3' => 1.3819, 'K4' => 2.4166, 'K5' => 3.5652],
+            'K3' => ['K4' => 1.5874, 'K5' => 2.4166],
+            'K4' => ['K5' => 1.4471],
         ];
+
+        // Fallback perbandingan berdasarkan urutan posisi kriteria (0 s/d 4)
+        $defaultByIndex = [
+            0 => [1 => 1.8378, 2 => 2.4166, 3 => 4.3734, 4 => 5.5106],
+            1 => [2 => 1.3819, 3 => 2.4166, 4 => 3.5652],
+            2 => [3 => 1.5874, 4 => 2.4166],
+            3 => [4 => 1.4471],
+        ];
+
+        $kriteriasIndexed = $kriterias->values();
+        $indexMap = [];
+        foreach ($kriteriasIndexed as $idx => $k) {
+            $indexMap[$k->id] = $idx;
+        }
 
         // 1. Matriks Perbandingan Berpasangan
         $matrix = [];
@@ -44,10 +62,39 @@ class AhpController extends Controller
                         $reverse = KriteriaComparison::where('kriteria1_id', $k2->id)->where('kriteria2_id', $k1->id)->first();
                         if ($reverse && $reverse->nilai > 0) {
                             $val = 1.0 / (float) $reverse->nilai;
-                        } elseif (isset($defaultComparisons[$k1->kode][$k2->kode])) {
-                            $val = (float) $defaultComparisons[$k1->kode][$k2->kode];
-                        } elseif (isset($defaultComparisons[$k2->kode][$k1->kode])) {
-                            $val = 1.0 / (float) $defaultComparisons[$k2->kode][$k1->kode];
+                        } else {
+                            $code1 = strtoupper($k1->kode);
+                            $code2 = strtoupper($k2->kode);
+                            $norm1 = str_replace('K', 'C', $code1);
+                            $norm2 = str_replace('K', 'C', $code2);
+
+                            if (isset($defaultComparisons[$code1][$code2])) {
+                                $val = (float) $defaultComparisons[$code1][$code2];
+                            } elseif (isset($defaultComparisons[$code2][$code1])) {
+                                $val = 1.0 / (float) $defaultComparisons[$code2][$code1];
+                            } elseif (isset($defaultComparisons[$norm1][$norm2])) {
+                                $val = (float) $defaultComparisons[$norm1][$norm2];
+                            } elseif (isset($defaultComparisons[$norm2][$norm1])) {
+                                $val = 1.0 / (float) $defaultComparisons[$norm2][$norm1];
+                            } else {
+                                $i = $indexMap[$k1->id] ?? null;
+                                $j = $indexMap[$k2->id] ?? null;
+                                if ($i !== null && $j !== null && count($kriterias) === 5) {
+                                    if (isset($defaultByIndex[$i][$j])) {
+                                        $val = (float) $defaultByIndex[$i][$j];
+                                    } elseif (isset($defaultByIndex[$j][$i])) {
+                                        $val = 1.0 / (float) $defaultByIndex[$j][$i];
+                                    }
+                                }
+                            }
+
+                            // Simpan otomatis nilai perbandingan ke DB jika belum ada
+                            if ($val >= 1.0 && $k1->id !== $k2->id) {
+                                KriteriaComparison::updateOrCreate(
+                                    ['kriteria1_id' => $k1->id, 'kriteria2_id' => $k2->id],
+                                    ['nilai' => $val]
+                                );
+                            }
                         }
                     }
                 }
@@ -111,7 +158,10 @@ class AhpController extends Controller
         $isConsistent = ($cr <= 0.1);
 
         // 5. Evaluasi Siswa (Alternatif)
-        $siswas = Siswa::where('guru_id', auth()->id())->with('penilaians')->get()->filter(function ($siswa) {
+        $siswas = Siswa::where(function ($q) {
+            $q->where('guru_id', auth()->id())
+                ->orWhereNull('guru_id');
+        })->with('penilaians')->get()->filter(function ($siswa) {
             return $siswa->penilaians->count() > 0;
         });
 

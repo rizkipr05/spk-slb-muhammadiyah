@@ -10,6 +10,17 @@
             <div class="alert alert-danger">{{ $error }}</div>
         </div>
     @else
+    @if(count($kriterias) < 5)
+        <div class="col-12 mb-3">
+            <div class="alert alert-warning rounded-3 shadow-sm d-flex align-items-center">
+                <i class="bi bi-info-circle-fill fs-5 me-2"></i>
+                <div>
+                    <strong>Perhatian:</strong> Saat ini baru terdaftar {{ count($kriterias) }} kriteria. 
+                    Agar perhitungan AHP lengkap dengan 5 kriteria kuesioner pakar (K1 s/d K5), silakan gunakan fitur <strong>Muat Kriteria Kuesioner (K1-K5)</strong> pada akun Administrator di menu Data Kriteria.
+                </div>
+            </div>
+        </div>
+    @endif
     <!-- Ringkasan Bobot Prioritas & Status Konsistensi AHP -->
     <div class="col-lg-7 mb-4">
         <div class="card border-0 shadow-sm h-100">
@@ -84,7 +95,7 @@
                         <span class="fw-bold font-monospace">{{ number_format($ci, 6) }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                        <span class="text-muted">Random Index (RI, n=5)</span>
+                        <span class="text-muted">Random Index (RI, n={{ count($kriterias) }})</span>
                         <span class="fw-bold font-monospace">{{ number_format($ri, 2) }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 bg-light rounded px-2">
@@ -262,7 +273,7 @@
                                         <h6 class="fw-bold mb-2">Ringkasan Rumus:</h6>
                                         <p class="small mb-1"><strong>&lambda; max</strong> = {{ number_format($sumLambda, 4) }} / {{ count($kriterias) }} = <strong>{{ number_format($lambdaMax, 4) }}</strong></p>
                                         <p class="small mb-1"><strong>CI</strong> = (&lambda; max - n) / (n - 1) = ({{ number_format($lambdaMax, 4) }} - {{ count($kriterias) }}) / {{ count($kriterias) - 1 }} = <strong>{{ number_format($ci, 6) }}</strong></p>
-                                        <p class="small mb-1"><strong>RI</strong> (n=5) = <strong>{{ number_format($ri, 2) }}</strong></p>
+                                        <p class="small mb-1"><strong>RI</strong> (n={{ count($kriterias) }}) = <strong>{{ number_format($ri, 2) }}</strong></p>
                                         <p class="small mb-2"><strong>CR</strong> = CI / RI = {{ number_format($ci, 6) }} / {{ number_format($ri, 2) }} = <span class="badge {{ $isConsistent ? 'bg-success' : 'bg-danger' }}">{{ number_format($cr, 6) }}</span></p>
                                         <div class="small fw-semibold text-{{ $isConsistent ? 'success' : 'danger' }}">
                                             <i class="bi {{ $isConsistent ? 'bi-check-circle-fill' : 'bi-x-circle-fill' }} me-1"></i>

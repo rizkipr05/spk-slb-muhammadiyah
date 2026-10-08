@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Kriteria;
+use Database\Seeders\DummyDataSeeder;
 use Illuminate\Http\Request;
 
 class KriteriaController extends Controller
@@ -11,6 +12,7 @@ class KriteriaController extends Controller
     public function index()
     {
         $kriterias = Kriteria::orderBy('kode', 'asc')->get();
+
         return view('admin.kriteria.index', compact('kriterias'));
     }
 
@@ -27,6 +29,7 @@ class KriteriaController extends Controller
         ]);
 
         Kriteria::create($validated);
+
         return redirect()->route('kriteria.index')->with('success', 'Data kriteria berhasil ditambahkan.');
     }
 
@@ -38,17 +41,27 @@ class KriteriaController extends Controller
     public function update(Request $request, Kriteria $kriteria)
     {
         $validated = $request->validate([
-            'kode' => 'required|string|max:50|unique:kriterias,kode,' . $kriteria->id,
+            'kode' => 'required|string|max:50|unique:kriterias,kode,'.$kriteria->id,
             'nama' => 'required|string|max:255',
         ]);
 
         $kriteria->update($validated);
+
         return redirect()->route('kriteria.index')->with('success', 'Data kriteria berhasil diperbarui.');
     }
 
     public function destroy(Kriteria $kriteria)
     {
         $kriteria->delete();
+
         return redirect()->route('kriteria.index')->with('success', 'Data kriteria berhasil dihapus.');
+    }
+
+    public function resetDefault()
+    {
+        $seeder = new DummyDataSeeder;
+        $seeder->run();
+
+        return redirect()->route('kriteria.index')->with('success', 'Data 5 kriteria standar kuesioner (K1 s/d K5), subkriteria, dan bobot perbandingan AHP berhasil dimuat!');
     }
 }
