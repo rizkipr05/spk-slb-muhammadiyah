@@ -12,6 +12,7 @@ class SubkriteriaController extends Controller
     public function index(Kriteria $kriteria)
     {
         $subkriterias = $kriteria->subkriterias()->orderBy('nilai', 'desc')->get();
+
         return view('admin.subkriteria.index', compact('kriteria', 'subkriterias'));
     }
 
@@ -28,6 +29,7 @@ class SubkriteriaController extends Controller
         ]);
 
         $kriteria->subkriterias()->create($validated);
+
         return redirect()->route('kriteria.subkriteria.index', $kriteria->id)->with('success', 'Subkriteria berhasil ditambahkan.');
     }
 
@@ -44,12 +46,14 @@ class SubkriteriaController extends Controller
         ]);
 
         $subkriterium->update($validated);
+
         return redirect()->route('kriteria.subkriteria.index', $kriteria->id)->with('success', 'Subkriteria berhasil diperbarui.');
     }
 
     public function destroy(Kriteria $kriteria, Subkriteria $subkriterium)
     {
         $subkriterium->delete();
+
         return redirect()->route('kriteria.subkriteria.index', $kriteria->id)->with('success', 'Subkriteria berhasil dihapus.');
     }
 }

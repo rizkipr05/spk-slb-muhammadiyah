@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
@@ -15,7 +17,7 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -28,7 +30,7 @@ class ProfileController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
@@ -36,14 +38,14 @@ class ProfileController extends Controller
 
         if ($request->hasFile('foto')) {
             if ($user->foto) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->foto);
+                Storage::disk('public')->delete($user->foto);
             }
             $file = $request->file('foto');
             $path = $file->store('profile_photos', 'public');
             $validated['foto'] = $path;
         } elseif ($request->has('hapus_foto') && $request->hapus_foto == '1') {
             if ($user->foto) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->foto);
+                Storage::disk('public')->delete($user->foto);
             }
             $validated['foto'] = null;
         }

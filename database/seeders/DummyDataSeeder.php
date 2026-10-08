@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\KriteriaComparison;
 use App\Models\Pengumuman;
@@ -26,7 +27,45 @@ class DummyDataSeeder extends Seeder
         $kepsek = User::where('role', 'kepsek')->first();
         $guru = User::where('role', 'guru')->first();
 
-        // 2. Kriteria (K1 s/d K5 - Standar Kriteria Kuesioner Pakar)
+        // 2. Alternatif Layanan Pendidikan (Sesuai Proposal & Output Rekomendasi SPK)
+        $alternatifsData = [
+            [
+                'kode' => 'A1',
+                'nama_layanan' => 'Layanan Pendidikan Tunarungu',
+                'deskripsi' => 'Layanan pendidikan yang dirancang untuk mendukung kebutuhan belajar siswa dengan hambatan pendengaran melalui stimulasi visual, bahasa isyarat, dan pemanfaatan alat bantu pendengaran.',
+            ],
+            [
+                'kode' => 'A2',
+                'nama_layanan' => 'Layanan Pendidikan Tunagrahita',
+                'deskripsi' => 'Layanan pendidikan yang disesuaikan untuk siswa dengan hambatan intelektual dan perkembangan kognitif guna melatih kemampuan adaptif serta bina diri mandiri.',
+            ],
+            [
+                'kode' => 'A3',
+                'nama_layanan' => 'Layanan Pendidikan Autisme',
+                'deskripsi' => 'Layanan pendidikan yang disesuaikan untuk siswa spektrum autisme guna mendukung konsentrasi belajar, pengembangan interaksi sosial, dan komunikasi adaptif.',
+            ],
+            [
+                'kode' => 'A4',
+                'nama_layanan' => 'Layanan Pendidikan Tunanetra',
+                'deskripsi' => 'Layanan pendidikan khusus peserta didik tunanetra yang berfokus pada orientasi mobilitas, penguasaan huruf Braille, dan pemanfaatan sarana sensori taktil.',
+            ],
+            [
+                'kode' => 'A5',
+                'nama_layanan' => 'Layanan Pendidikan Down Syndrom',
+                'deskripsi' => 'Layanan pendidikan yang disesuaikan untuk siswa Down Syndrome guna mengoptimalkan potensi motorik, stimulasi kognitif, kemampuan bersosialisasi, dan keterampilan hidup harian.',
+            ],
+            [
+                'kode' => 'A6',
+                'nama_layanan' => 'Layanan Pendidikan Tunadaksa',
+                'deskripsi' => 'Layanan pendidikan yang disesuaikan untuk siswa dengan hambatan fisik atau gerak melalui penyediaan aksesibilitas lingkungan dan latihan fungsional tubuh.',
+            ],
+        ];
+
+        foreach ($alternatifsData as $alt) {
+            Alternatif::updateOrCreate(['kode' => $alt['kode']], $alt);
+        }
+
+        // 3. Kriteria (K1 s/d K5 - Standar Kriteria Kuesioner Pakar)
         $kriteriasData = [
             ['kode' => 'K1', 'nama' => 'Jenis Kebutuhan Khusus'],
             ['kode' => 'K2', 'nama' => 'Kemampuan Akademik'],
@@ -50,14 +89,16 @@ class DummyDataSeeder extends Seeder
 
         $kriterias = Kriteria::whereIn('kode', ['K1', 'K2', 'K3', 'K4', 'K5'])->orderBy('kode', 'asc')->get();
 
-        // 3. Subkriteria Lengkap (1 s/d 5) untuk seluruh Kriteria
+        // 4. Subkriteria Lengkap untuk seluruh Kriteria
         $subs = [
             'K1' => [
                 ['nama' => 'Tunanetra', 'nilai' => 5],
-                ['nama' => 'Tunarungu', 'nilai' => 4],
+                ['nama' => 'Tunarungu', 'nilai' => 5],
+                ['nama' => 'Tunagrahita', 'nilai' => 4],
+                ['nama' => 'Autisme', 'nilai' => 4],
+                ['nama' => 'Down Syndrom', 'nilai' => 3],
                 ['nama' => 'Tunadaksa', 'nilai' => 3],
-                ['nama' => 'Autisme', 'nilai' => 2],
-                ['nama' => 'Kesulitan Belajar', 'nilai' => 1],
+                ['nama' => 'Kesulitan Belajar', 'nilai' => 2],
             ],
             'default' => [
                 ['nama' => 'Sangat Kurang', 'nilai' => 1],
@@ -78,7 +119,7 @@ class DummyDataSeeder extends Seeder
             }
         }
 
-        // 4. Kriteria Comparisons (Pairwise Matrix dari Hasil Kuesioner Pakar)
+        // 5. Kriteria Comparisons (Pairwise Matrix dari Hasil Kuesioner Pakar)
         // K1: JKK, K2: KA, K3: KK, K4: KS, K5: KSO
         $comparisonValues = [
             'K1' => ['K2' => 1.8378, 'K3' => 2.4166, 'K4' => 4.3734, 'K5' => 5.5106],
@@ -99,13 +140,14 @@ class DummyDataSeeder extends Seeder
             }
         }
 
-        // 5. Siswa Data (Dihubungkan ke Guru agar tampil di role Guru)
+        // 6. Siswa Data (Dihubungkan ke Guru agar tampil di role Guru)
         $siswasData = [
             ['nisn' => '1001', 'nama' => 'Ahmad Reza', 'jenis_kelamin' => 'Laki-laki', 'jenis_kebutuhan_khusus' => 'Tunarungu', 'tempat_lahir' => 'Jakarta', 'tanggal_lahir' => '2015-05-10', 'alamat' => 'Jl. Merdeka 1', 'guru_id' => $guru ? $guru->id : null],
             ['nisn' => '1002', 'nama' => 'Budi Santoso', 'jenis_kelamin' => 'Laki-laki', 'jenis_kebutuhan_khusus' => 'Tunanetra', 'tempat_lahir' => 'Bandung', 'tanggal_lahir' => '2014-11-20', 'alamat' => 'Jl. Pahlawan 2', 'guru_id' => $guru ? $guru->id : null],
             ['nisn' => '1003', 'nama' => 'Citra Lestari', 'jenis_kelamin' => 'Perempuan', 'jenis_kebutuhan_khusus' => 'Autisme', 'tempat_lahir' => 'Surabaya', 'tanggal_lahir' => '2016-01-15', 'alamat' => 'Jl. Sudirman 3', 'guru_id' => $guru ? $guru->id : null],
             ['nisn' => '1004', 'nama' => 'Deni Darmawan', 'jenis_kelamin' => 'Laki-laki', 'jenis_kebutuhan_khusus' => 'Tunadaksa', 'tempat_lahir' => 'Medan', 'tanggal_lahir' => '2015-08-30', 'alamat' => 'Jl. Thamrin 4', 'guru_id' => $guru ? $guru->id : null],
-            ['nisn' => '1005', 'nama' => 'Eka Putri', 'jenis_kelamin' => 'Perempuan', 'jenis_kebutuhan_khusus' => 'Kesulitan Belajar', 'tempat_lahir' => 'Semarang', 'tanggal_lahir' => '2014-04-22', 'alamat' => 'Jl. Gatot Subroto 5', 'guru_id' => $guru ? $guru->id : null],
+            ['nisn' => '1005', 'nama' => 'Eka Putri', 'jenis_kelamin' => 'Perempuan', 'jenis_kebutuhan_khusus' => 'Tunagrahita', 'tempat_lahir' => 'Semarang', 'tanggal_lahir' => '2014-04-22', 'alamat' => 'Jl. Gatot Subroto 5', 'guru_id' => $guru ? $guru->id : null],
+            ['nisn' => '1006', 'nama' => 'Fajar Pratama', 'jenis_kelamin' => 'Laki-laki', 'jenis_kebutuhan_khusus' => 'Down Syndrom', 'tempat_lahir' => 'Palu', 'tanggal_lahir' => '2015-02-18', 'alamat' => 'Jl. Tadulako 6', 'guru_id' => $guru ? $guru->id : null],
         ];
 
         foreach ($siswasData as $s) {

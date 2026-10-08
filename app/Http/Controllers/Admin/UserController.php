@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -13,6 +14,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::orderBy('id', 'desc')->get();
+
         return view('admin.pengguna.index', compact('users'));
     }
 
@@ -33,8 +35,9 @@ class UserController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
-        
+
         User::create($validated);
+
         return redirect()->route('pengguna.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
 
@@ -54,22 +57,24 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8',
         ]);
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
 
         $pengguna->update($validated);
+
         return redirect()->route('pengguna.index')->with('success', 'Pengguna berhasil diperbarui.');
     }
 
     public function destroy(User $pengguna)
     {
-        if (\Illuminate\Support\Facades\Auth::id() === $pengguna->id) {
+        if (Auth::id() === $pengguna->id) {
             return back()->withErrors(['error' => 'Anda tidak bisa menghapus akun Anda sendiri.']);
         }
         $pengguna->delete();
+
         return redirect()->route('pengguna.index')->with('success', 'Pengguna berhasil dihapus.');
     }
 }

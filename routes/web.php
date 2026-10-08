@@ -65,5 +65,6 @@ use App\Http\Controllers\Kepsek\PengumumanController;
 Route::middleware(['auth', 'role:kepsek'])->prefix('kepsek')->group(function () {
     Route::get('/dashboard', [KepsekDashboard::class, 'index'])->name('kepsek.dashboard');
     Route::get('/laporan', [LaporanController::class, 'index'])->name('kepsek.laporan.index');
+    Route::get('/laporan/{id}/cetak', [LaporanController::class, 'cetak'])->name('kepsek.laporan.cetak');
     Route::resource('pengumuman', PengumumanController::class)->except(['show'])->names('kepsek.pengumuman');
 });

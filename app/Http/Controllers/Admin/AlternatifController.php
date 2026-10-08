@@ -11,6 +11,7 @@ class AlternatifController extends Controller
     public function index()
     {
         $alternatifs = Alternatif::orderBy('kode', 'asc')->get();
+
         return view('admin.alternatif.index', compact('alternatifs'));
     }
 
@@ -28,6 +29,7 @@ class AlternatifController extends Controller
         ]);
 
         Alternatif::create($validated);
+
         return redirect()->route('alternatif.index')->with('success', 'Data Alternatif Layanan berhasil ditambahkan.');
     }
 
@@ -39,18 +41,20 @@ class AlternatifController extends Controller
     public function update(Request $request, Alternatif $alternatif)
     {
         $validated = $request->validate([
-            'kode' => 'required|string|max:50|unique:alternatifs,kode,' . $alternatif->id,
+            'kode' => 'required|string|max:50|unique:alternatifs,kode,'.$alternatif->id,
             'nama_layanan' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
         ]);
 
         $alternatif->update($validated);
+
         return redirect()->route('alternatif.index')->with('success', 'Data Alternatif Layanan berhasil diperbarui.');
     }
 
     public function destroy(Alternatif $alternatif)
     {
         $alternatif->delete();
+
         return redirect()->route('alternatif.index')->with('success', 'Data Alternatif Layanan berhasil dihapus.');
     }
 }

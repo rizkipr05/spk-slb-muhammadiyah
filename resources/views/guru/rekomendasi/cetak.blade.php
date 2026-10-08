@@ -72,6 +72,8 @@
                             <th>{{ $k['kode'] }}<br>({{ number_format($data['weights'][$k['id']]*100,0) }}%)</th>
                         @endforeach
                         <th>Total Skor</th>
+                        <th>Rekomendasi Alternatif Layanan</th>
+                        <th width="12%">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -84,12 +86,16 @@
                                 <td>{{ number_format($row['details'][$k['id']]['terbobot'], 4) }}</td>
                             @endforeach
                             <td><strong>{{ number_format($row['score'], 4) }}</strong></td>
+                            <td style="text-align: left; padding-left: 8px !important;">
+                                <strong>[{{ $row['kode_layanan'] ?? 'A-' }}]</strong> {{ $row['rekomendasi_layanan'] ?? '-' }}
+                            </td>
+                            <td>{{ $row['status_prioritas'] ?? 'Direkomendasikan' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
             
-            <p style="font-size: 0.9rem; margin-top: -15px;"><em>*Keterangan: Skor di atas menggunakan metode pembobotan Analytic Hierarchy Process (AHP). Nilai pada masing-masing kriteria di kolom adalah nilai konversi terbobot.</em></p>
+            <p style="font-size: 0.9rem; margin-top: -15px;"><em>*Keterangan: Skor di atas menggunakan metode pembobotan Analytic Hierarchy Process (AHP). Nilai pada masing-masing kriteria di kolom adalah nilai konversi terbobot. Rekomendasi alternatif layanan merupakan hasil penyesuaian kebutuhan khusus siswa dengan alternatif layanan pendidikan yang tersedia.</em></p>
         </div>
 
         <div class="signature-area">

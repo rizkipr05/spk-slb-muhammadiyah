@@ -3,13 +3,23 @@
 namespace App\Http\Controllers\Kepsek;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\LaporanAhp;
 
 class LaporanController extends Controller
 {
     public function index()
     {
-        // Currently a placeholder interface matching the task
-        return view('kepsek.laporan.index');
+        $latestLaporan = LaporanAhp::with('author')->latest()->first();
+        $riwayatLaporans = LaporanAhp::with('author')->latest()->get();
+
+        return view('kepsek.laporan.index', compact('latestLaporan', 'riwayatLaporans'));
+    }
+
+    public function cetak($id)
+    {
+        $laporan = LaporanAhp::findOrFail($id);
+        $data = $laporan->data_hasil;
+
+        return view('guru.rekomendasi.cetak', compact('laporan', 'data'));
     }
 }

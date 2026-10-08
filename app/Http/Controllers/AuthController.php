@@ -22,9 +22,16 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $role = Auth::user()->role;
-            if ($role === 'admin') return redirect('/admin/dashboard');
-            if ($role === 'guru') return redirect('/guru/dashboard');
-            if ($role === 'kepsek') return redirect('/kepsek/dashboard');
+            if ($role === 'admin') {
+                return redirect('/admin/dashboard');
+            }
+            if ($role === 'guru') {
+                return redirect('/guru/dashboard');
+            }
+            if ($role === 'kepsek') {
+                return redirect('/kepsek/dashboard');
+            }
+
             return redirect('/');
         }
 
@@ -38,6 +45,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 }

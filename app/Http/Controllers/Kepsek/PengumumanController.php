@@ -12,6 +12,7 @@ class PengumumanController extends Controller
     public function index()
     {
         $pengumumans = Pengumuman::latest()->get();
+
         return view('kepsek.pengumuman.index', compact('pengumumans'));
     }
 
@@ -32,6 +33,7 @@ class PengumumanController extends Controller
         $validated['status_aktif'] = $request->has('status_aktif');
 
         Pengumuman::create($validated);
+
         return redirect()->route('kepsek.pengumuman.index')->with('success', 'Pengumuman berhasil dibuat.');
     }
 
@@ -51,12 +53,14 @@ class PengumumanController extends Controller
         $validated['status_aktif'] = $request->has('status_aktif');
 
         $pengumuman->update($validated);
+
         return redirect()->route('kepsek.pengumuman.index')->with('success', 'Pengumuman berhasil diperbarui.');
     }
 
     public function destroy(Pengumuman $pengumuman)
     {
         $pengumuman->delete();
+
         return redirect()->route('kepsek.pengumuman.index')->with('success', 'Pengumuman berhasil dihapus.');
     }
 }

@@ -3,14 +3,97 @@
 namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
+use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\KriteriaComparison;
 use App\Models\LaporanAhp;
 use App\Models\Siswa;
+use App\Models\Subkriteria;
 use Illuminate\Http\Request;
 
 class AhpController extends Controller
 {
+    /**
+     * Menentukan alternatif rekomendasi layanan yang sesuai untuk siswa berdasarkan kebutuhan dan penilaian.
+     */
+    private function matchAlternatif(Siswa $siswa, $alternatifs, $kriterias): ?Alternatif
+    {
+        if ($alternatifs->isEmpty()) {
+            return null;
+        }
+
+        $kebutuhan = trim((string) ($siswa->jenis_kebutuhan_khusus ?? ''));
+
+        // Fallback jika kebutuhan belum diisi di profil siswa, gunakan subkriteria K1
+        if (empty($kebutuhan)) {
+            $k1 = $kriterias->firstWhere('kode', 'K1') ?? $kriterias->first();
+            if ($k1) {
+                $penilaianK1 = $siswa->penilaians->where('kriteria_id', $k1->id)->first();
+                if ($penilaianK1) {
+                    $sub = Subkriteria::where('kriteria_id', $k1->id)
+                        ->where('nilai', $penilaianK1->nilai)
+                        ->first();
+                    if ($sub) {
+                        $kebutuhan = $sub->nama;
+                    }
+                }
+            }
+        }
+
+        if (! empty($kebutuhan)) {
+            $target = strtolower($kebutuhan);
+
+            // Pemetaan kata kunci kebutuhan ke kelompok alternatif
+            $mappings = [
+                'tunarungu' => ['tunarungu', 'rungu', 'pendengaran'],
+                'tunagrahita' => ['tunagrahita', 'grahita', 'intelektual'],
+                'autisme' => ['autis', 'autisme'],
+                'tunanetra' => ['tunanetra', 'netra', 'penglihatan'],
+                'down syndrom' => ['down syndrom', 'down syndrome', 'down'],
+                'tunadaksa' => ['tunadaksa', 'daksa', 'motorik', 'fisik'],
+            ];
+
+            foreach ($mappings as $category => $keywords) {
+                $matchesCategory = false;
+                foreach ($keywords as $kw) {
+                    if (str_contains($target, $kw)) {
+                        $matchesCategory = true;
+                        break;
+                    }
+                }
+
+                if ($matchesCategory) {
+                    $matchedAlt = $alternatifs->first(function ($alt) use ($keywords) {
+                        $altName = strtolower($alt->nama_layanan);
+                        foreach ($keywords as $kw) {
+                            if (str_contains($altName, $kw)) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    });
+
+                    if ($matchedAlt) {
+                        return $matchedAlt;
+                    }
+                }
+            }
+
+            // Pencarian kecocokan string langsung (fallback fleksibel)
+            foreach ($alternatifs as $alt) {
+                $altName = strtolower($alt->nama_layanan);
+                $stemName = trim(str_replace('layanan pendidikan', '', $altName));
+                if (str_contains($altName, $target) || (! empty($stemName) && str_contains($target, $stemName))) {
+                    return $alt;
+                }
+            }
+        }
+
+        // Fallback: alternatif pertama
+        return $alternatifs->first();
+    }
+
     private function calculateAHP()
     {
         $kriterias = Kriteria::orderBy('kode', 'asc')->get();
@@ -177,6 +260,8 @@ class AhpController extends Controller
             }
         }
 
+        $alternatifs = Alternatif::orderBy('kode', 'asc')->get();
+
         // Calculate Final Scores
         $results = [];
         foreach ($siswas as $siswa) {
@@ -198,10 +283,24 @@ class AhpController extends Controller
                 ];
             }
 
+            $matchedAlt = $this->matchAlternatif($siswa, $alternatifs, $kriterias);
+            $namaLayanan = $matchedAlt ? $matchedAlt->nama_layanan : ($siswa->jenis_kebutuhan_khusus ? 'Layanan Pendidikan '.$siswa->jenis_kebutuhan_khusus : 'Layanan Pendidikan Umum');
+            $kodeLayanan = $matchedAlt ? $matchedAlt->kode : 'A-';
+            $deskripsiLayanan = $matchedAlt ? ($matchedAlt->deskripsi ?? '') : '';
+
             $results[] = [
                 'siswa' => $siswa,
                 'details' => $details,
                 'score' => $finalScore,
+                'alternatif' => $matchedAlt ? [
+                    'id' => $matchedAlt->id,
+                    'kode' => $matchedAlt->kode,
+                    'nama_layanan' => $matchedAlt->nama_layanan,
+                    'deskripsi' => $matchedAlt->deskripsi,
+                ] : null,
+                'rekomendasi_layanan' => $namaLayanan,
+                'kode_layanan' => $kodeLayanan,
+                'deskripsi_layanan' => $deskripsiLayanan,
             ];
         }
 
@@ -209,8 +308,21 @@ class AhpController extends Controller
             return $b['score'] <=> $a['score'];
         });
 
+        foreach ($results as $index => &$res) {
+            $res['rank'] = $index + 1;
+            if ($index === 0) {
+                $res['status_prioritas'] = 'Prioritas Utama';
+            } elseif ($index < 3) {
+                $res['status_prioritas'] = 'Prioritas Tinggi';
+            } else {
+                $res['status_prioritas'] = 'Direkomendasikan';
+            }
+        }
+        unset($res);
+
         return [
             'kriterias' => $kriterias,
+            'alternatifs' => $alternatifs,
             'matrix' => $matrix,
             'colSums' => $colSums,
             'normalizedMatrix' => $normalizedMatrix,

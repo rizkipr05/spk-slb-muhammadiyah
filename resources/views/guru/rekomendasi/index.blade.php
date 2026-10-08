@@ -307,13 +307,15 @@
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th class="text-center">Peringkat</th>
+                                <th class="text-center" style="width: 5%">Peringkat</th>
                                 <th>Nama Siswa</th>
                                 <th>Kebutuhan Khusus</th>
                                 @foreach($kriterias as $k)
                                     <th class="text-center" style="font-size: 0.8rem;">{{ $k->kode }}<br><small class="text-muted text-fw-normal">({{ number_format($weights[$k->id]*100,0) }}%)</small></th>
                                 @endforeach
                                 <th class="text-center text-primary fs-6">Skor Akhir</th>
+                                <th>Rekomendasi Alternatif Layanan</th>
+                                <th class="text-center" style="width: 12%">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -327,7 +329,9 @@
                                     @endif
                                 </td>
                                 <td class="fw-bold">{{ $row['siswa']->nama }}</td>
-                                <td>{{ $row['siswa']->jenis_kebutuhan_khusus ?? '-' }}</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ $row['siswa']->jenis_kebutuhan_khusus ?? '-' }}</span>
+                                </td>
                                 @foreach($kriterias as $k)
                                     <td class="text-center">
                                         <div class="small fw-semibold">{{ $row['details'][$k->id]['asli'] }}</div>
@@ -339,10 +343,32 @@
                                         {{ number_format($row['score'], 4) }}
                                     </span>
                                 </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary px-2 py-1 shadow-sm">{{ $row['kode_layanan'] }}</span>
+                                        <div>
+                                            <span class="fw-bold text-dark">{{ $row['rekomendasi_layanan'] }}</span>
+                                            @if(!empty($row['deskripsi_layanan']))
+                                                <small class="text-muted d-block text-truncate" style="max-width: 280px;" title="{{ $row['deskripsi_layanan'] }}">
+                                                    {{ $row['deskripsi_layanan'] }}
+                                                </small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @if($index === 0)
+                                        <span class="badge bg-success px-2 py-1 shadow-sm"><i class="bi bi-star-fill me-1"></i> {{ $row['status_prioritas'] }}</span>
+                                    @elseif($index < 3)
+                                        <span class="badge bg-info text-dark px-2 py-1">{{ $row['status_prioritas'] }}</span>
+                                    @else
+                                        <span class="badge bg-secondary px-2 py-1">{{ $row['status_prioritas'] }}</span>
+                                    @endif
+                                </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="{{ count($kriterias) + 4 }}" class="text-center py-5 text-muted">
+                                <td colspan="{{ count($kriterias) + 6 }}" class="text-center py-5 text-muted">
                                     <i class="bi bi-inbox fs-2 d-block mb-3"></i>
                                     Data belum memadai.
                                 </td>
